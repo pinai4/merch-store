@@ -43,7 +43,7 @@ The project is a pet project with two explicit goals:
 | E-mail | SMTP (Mailpit in dev) |
 | Contracts | Protobuf managed with `buf`; OpenAPI generated from proto |
 | Observability | OpenTelemetry, Prometheus, Grafana, structured logs |
-| Deployment | docker-compose (infrastructure only), Kubernetes (Kind, staging) with Helm |
+| Deployment | docker-compose (infrastructure and Envoy), Kubernetes (Kind, staging) with Helm |
 | CI/CD | GitHub Actions, images in GHCR |
 | Task runner | Taskfile |
 
@@ -455,10 +455,11 @@ The storage stack (Tempo/Jaeger, Loki) is deployed in a dedicated phase.
 
 | Environment | How | Purpose |
 |---|---|---|
-| local (compose) | docker-compose runs infrastructure only (Postgres, Redis, Kafka, Keycloak, MinIO, Mailpit); services run from the host | fast development loop |
+| local (compose) | docker-compose runs infrastructure (Postgres, Redis, Kafka, Keycloak, MinIO, Mailpit) and the Envoy gateway; Go services and web apps run from the host | fast development loop |
 | local (Kind) | the whole system from the same Helm charts as staging | full-system check, end-to-end tests |
 | staging | any Kubernetes cluster reachable from GitHub Actions through a kubeconfig secret | integration environment |
 
+- Envoy is the entry point in every environment. In compose it reaches services and web apps on the host through `host.docker.internal`; routes and filters are the same as in the cluster, only upstream addresses differ (ADR 0011).
 - One generic Helm chart for Go services with values per service and per environment.
 - Infrastructure uses simple single-replica charts (Kafka in KRaft mode). In production these would be managed services or operators.
 - Stripe webhooks are forwarded locally with the Stripe CLI.

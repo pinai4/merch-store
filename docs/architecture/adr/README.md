@@ -14,3 +14,4 @@ Each record is short: context, decision, consequences. New decisions get the nex
 | [0008](0008-authentication-model.md) | Authentication and authorization model |
 | [0009](0009-local-and-cluster-deployment.md) | Compose for infrastructure, Helm for Kind and staging |
 | [0010](0010-taskfile.md) | Taskfile as the task runner |
+| [0011](0011-envoy-in-local-compose.md) | Envoy runs in local compose (amends 0009) |
