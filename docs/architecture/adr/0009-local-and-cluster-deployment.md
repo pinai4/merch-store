@@ -1,6 +1,6 @@
 # 0009. Compose for infrastructure, Helm for Kind and staging
 
-Status: accepted
+Status: accepted. Amended by [0011](0011-envoy-in-local-compose.md).
 
 ## Context
 
