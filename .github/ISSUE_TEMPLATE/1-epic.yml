@@ -1,0 +1,66 @@
+name: Epic
+description: A sub-phase of a milestone, written as a PRD. Its tasks are added as sub-issues.
+title: "Epic <phase>.<n>: <name>"
+labels: ["type: epic"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        An epic is a sub-phase of a phase milestone. Set the milestone and one or more `area:` labels.
+        Do not list tasks here: add them as sub-issues. Record dependencies as "blocked by" relationships.
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What this sub-phase delivers and why, in two or three sentences.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Links to the architecture README sections and ADRs this epic implements; planning decisions that apply.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      value: |
+        **In scope**
+        -
+
+        **Out of scope**
+        -
+    validations:
+      required: true
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Requirements
+      description: Numbered, testable statements. Add user stories only where there is user-visible behaviour.
+      value: |
+        1.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Verifiable checks that close the epic.
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Summary only; the source of truth is the native "blocked by" relationships.
+      value: "Tracked with native issue relationships: blocked by …; blocks …"
+  - type: textarea
+    id: questions
+    attributes:
+      label: Open questions
+      description: Decisions left to a task, and which task decides them.
+      value: None.

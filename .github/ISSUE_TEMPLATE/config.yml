@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Issue tracker conventions
+    url: https://github.com/pinai4/merch-store/blob/main/docs/agents/issue-tracker.md
+    about: Read how milestones, epics and tasks are structured before opening an issue.

@@ -1,0 +1,49 @@
+name: Chore task
+description: A task for tooling, build, CI or maintenance.
+labels: ["type: chore"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A task is one pull request, mergeable into `main` on its own, about 0.5–2 days of work.
+        Create it as a sub-issue of its epic, set the milestone, `area:` labels and the Size field on the board,
+        and record "blocked by" relationships.
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: One or two sentences and the parent epic.
+      value: "Part of #"
+    validations:
+      required: true
+  - type: textarea
+    id: task
+    attributes:
+      label: Task
+      description: What to do, as a list of concrete changes.
+      value: |
+        -
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+      description: Related work that belongs to other tasks; link them.
+      value: |
+        -
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Files, README sections, ADRs.
+      value: |
+        -
