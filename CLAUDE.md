@@ -14,3 +14,5 @@ Go microservices monorepo with a Next.js frontend. Design is in docs/architectur
 ### Issue tracker
 
 Issues are tracked in this repo's GitHub Issues (via the `gh` CLI). See `docs/agents/issue-tracker.md`.
+
+When working on an issue, follow "Working on a task" in `docs/agents/issue-tracker.md`.
