@@ -59,7 +59,7 @@ Work is planned and tracked in this repository's GitHub Issues and in the projec
 | `type: chore` | Tooling, build, CI or maintenance |
 | `type: docs` | Documentation only |
 | `bug` | Something does not work as specified |
-| `area: repo` | Repository-wide tooling and conventions (workspace, Taskfile, templates, CODEOWNERS) |
+| `area: repo` | Repository-wide tooling and conventions (workspace, Taskfile, templates, CODEOWNERS, agent configuration: `.claude/`, `CLAUDE.md`, `docs/agents/`) |
 | `area: ci` | GitHub Actions workflows and checks |
 | `area: platform` | `platform` module |
 | `area: shared` | `shared` module: contracts and generated code |
@@ -97,8 +97,11 @@ Size is set for tasks, not for epics.
 |---|---|---|
 | Tasks board | Board, columns by Status | Tasks only (filter `-label:"type: epic"`) |
 | By milestone | Table, grouped by Milestone | Epics and tasks |
+| Outside roadmap | Table | Issues without a milestone (filter `no:milestone`) |
 
 ## Working on a task
+
+To run this process with an AI agent, with a plan checkpoint before any change and a review checkpoint before anything is committed, invoke `/implement-issue <issue number or URL>` (`.claude/skills/implement-issue/`). The skill is invoked only by hand.
 
 1. **Pick.** On *Tasks board*, take a task in Todo whose blockers are all closed (the issue page shows "Blocked by"). Work in phase order.
 2. **Start.** Assign yourself and move the task to **In progress**.
@@ -112,6 +115,18 @@ Size is set for tasks, not for epics.
 7. **Close the epic** when its last task is closed and its acceptance criteria are checked. **Close the milestone** when the phase's end-to-end check passes.
 
 If a task turns out bigger than planned, split it: create the extra sub-issues on the same epic, move relationships, and keep the original task to the part being done.
+
+## Work outside the roadmap
+
+Maintenance, tooling, agent configuration and urgent fixes that belong to no phase.
+
+- **No milestone.** A milestone is a goal that gets closed; ongoing maintenance never is. Do not create a standing "Maintenance" milestone.
+- **No parent** in the usual case. Create an epic without a milestone only for a larger, coherent piece of such work, with its own PRD.
+- **Labels** as for any task: `type: chore`, `type: docs`, `type: feature` or `bug`, plus `area:` labels. Agent configuration (`.claude/`, `CLAUDE.md`, `docs/agents/`) is `area: repo`.
+- **Board:** such issues are added automatically and follow the same statuses. The *Outside roadmap* view lists them.
+- **Branch, commits and PR** follow [Working on a task](#working-on-a-task), for example `chore/23-implement-issue-skill` and `chore(claude): add implement-issue skill`.
+- **A bug** that blocks the current phase gets that phase's milestone and the relevant "blocked by" relationships instead.
+- **PR without an issue** is acceptable only for trivial changes: under about half an hour and with no decision to record, such as a typo or a harmless version bump. Everything else starts with an issue.
 
 ## Commands
 
@@ -184,7 +199,7 @@ Eight milestones `Phase 1` … `Phase 8` as described in [Milestones](#milestone
 
 - User project #1 owned by `pinai4`, linked to this repository (Project → Settings → Manage access / or `gh project link`).
 - Fields: built-in **Status** with options Todo, In progress, In review, Done (in that order); single-select **Size** with options XS, S, M, L.
-- Views: *Tasks board* (Board layout, column field Status, filter `-label:"type: epic"`); *By milestone* (Table layout, Group by Milestone).
+- Views: *Tasks board* (Board layout, column field Status, filter `-label:"type: epic"`); *By milestone* (Table layout, Group by Milestone); *Outside roadmap* (Table layout, filter `no:milestone`).
 - Built-in workflows (Project → ⋯ → Workflows), all enabled:
 
   | Workflow | Sets |
