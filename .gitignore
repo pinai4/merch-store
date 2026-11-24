@@ -9,6 +9,9 @@ CLAUDE.local.md
 coverage.*
 *.coverprofile
 
+# Pinned third-party binaries installed by `task tools`
+/.bin/
+
 # Node.js and Next.js
 node_modules/
 .next/

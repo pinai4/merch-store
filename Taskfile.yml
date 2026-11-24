@@ -1,0 +1,84 @@
+# Root task runner (ADR 0010). Run `task --list` for the available tasks.
+#
+# Versions are pinned in one place each:
+#   - Go:              `toolchain` directive in go.work
+#   - Go tools:        `tool` directives in tools/go.mod, run with `go tool <name>`
+#   - binary tools:    .tool-versions; installed into the gitignored .bin/ by `task tools`
+version: "3"
+
+# Per-module task files are included here, namespaced by module, for example:
+#
+# includes:
+#   shared:
+#     taskfile: ./shared
+#     dir: ./shared
+
+vars:
+  BIN: "{{.ROOT_DIR}}/.bin"
+  GOLANGCI_LINT: "{{.BIN}}/golangci-lint"
+  GOLANGCI_LINT_VERSION:
+    sh: awk '$1 == "golangci-lint" { print $2 }' "{{.ROOT_DIR}}/.tool-versions"
+  TASK_MIN_VERSION:
+    sh: awk '$1 == "task" { print $2 }' "{{.ROOT_DIR}}/.tool-versions"
+  # Directories of the modules listed in go.work, one per line.
+  MODULES:
+    sh: go list -m -f '{{"{{.Dir}}"}}'
+
+tasks:
+  default:
+    cmds:
+      - task --list
+    silent: true
+
+  tools:
+    desc: Install pinned binary tools into .bin/, check the task version and download the tools module
+    deps: [tools:check-task, tools:install]
+    cmds:
+      - go -C "{{.ROOT_DIR}}/tools" mod download
+
+  tools:check-task:
+    internal: true
+    silent: true
+    cmds:
+      - |
+        have="{{.TASK_VERSION}}"
+        have="${have#v}"
+        have="${have%% *}"
+        min="{{.TASK_MIN_VERSION}}"
+        if [ "${have%%.*}" != "3" ] || [ "$(printf '%s\n%s\n' "$min" "$have" | sort -V | head -n1)" != "$min" ]; then
+          echo "task $have is not supported: need 3.x >= $min (pinned in .tool-versions)." >&2
+          echo "Install it with: go install github.com/go-task/task/v3/cmd/task@v$min" >&2
+          exit 1
+        fi
+
+  tools:install:
+    desc: Install golangci-lint into .bin/ at the version pinned in .tool-versions
+    status:
+      - test "$("{{.GOLANGCI_LINT}}" version --short 2>/dev/null)" = "{{.GOLANGCI_LINT_VERSION}}"
+    cmds:
+      - mkdir -p "{{.BIN}}"
+      # The install script is taken from the release tag and verifies the archive checksum.
+      - >-
+        curl -sSfL "https://raw.githubusercontent.com/golangci/golangci-lint/v{{.GOLANGCI_LINT_VERSION}}/install.sh"
+        | sh -s -- -b "{{.BIN}}" "v{{.GOLANGCI_LINT_VERSION}}"
+
+  lint:
+    desc: Run golangci-lint in every go.work module
+    preconditions:
+      - sh: test "$("{{.GOLANGCI_LINT}}" version --short 2>/dev/null)" = "{{.GOLANGCI_LINT_VERSION}}"
+        msg: "golangci-lint {{.GOLANGCI_LINT_VERSION}} (pinned in .tool-versions) is missing or outdated in .bin/. Run: task tools"
+    cmds:
+      - for: { var: MODULES }
+        cmd: cd "{{.ITEM}}" && "{{.GOLANGCI_LINT}}" run ./...
+
+  test:
+    desc: Run go test in every go.work module
+    cmds:
+      - for: { var: MODULES }
+        cmd: go -C "{{.ITEM}}" test ./...
+
+  fmt:
+    desc: Format Go code in every go.work module
+    cmds:
+      - for: { var: MODULES }
+        cmd: go -C "{{.ITEM}}" fmt ./...
