@@ -378,6 +378,7 @@ Monorepo with independent Go modules tied together by `go.work`.
 ├── platform/               # module: cross-service infrastructure libraries
 │   ├── logger/  closer/  config/  auth/  grpcx/
 │   ├── kafka/  outbox/  migrator/  otel/  testcontainers/
+├── tools/                  # module: pinned Go dev tools (`tool` directives, run with `go tool`)
 ├── web/
 │   ├── marketplace/
 │   ├── admin/
