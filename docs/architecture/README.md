@@ -474,7 +474,7 @@ The storage stack (Tempo/Jaeger, Loki) is deployed in a dedicated phase.
   - unit — `domain` and `usecase`;
   - integration — adapters against real dependencies with testcontainers;
   - end-to-end — a few browser scenarios (Playwright, `tests/e2e/`) against the whole system in Kind. Unit and integration tests live inside each service; end-to-end tests belong to no service and talk to the system only through the browser and the public API. The Stripe hosted page is not automated: the scenario stops at the redirect and the payment is simulated with a test webhook.
-- `Taskfile.yml` in the root includes per-service task files: code generation, lint, tests, migrations, compose up, deploy to Kind. Tool versions are pinned in the repository.
+- `Taskfile.yml` in the root includes per-service task files: code generation, lint, tests, migrations, compose up, deploy to Kind. Tool versions are pinned in the repository: Go by the `toolchain` directive in `go.work`, Go tools by `tool` directives in `tools/go.mod` (run with `go tool`), binary tools in `.tool-versions`; `task tools` installs the binaries into the project-local `.bin/`.
 
 ## 13. Implementation phases
 
