@@ -6,6 +6,10 @@
 #   - binary tools:    .tool-versions; installed into the gitignored .bin/ by `task tools`
 version: "3"
 
+# A pipeline fails when any command in it fails, not only the last one,
+# so `curl ... | sh` stops when the download fails.
+set: [pipefail]
+
 # Per-module task files are included here, namespaced by module, for example:
 #
 # includes:
