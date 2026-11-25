@@ -404,7 +404,7 @@ Monorepo with independent Go modules tied together by `go.work`.
 
 - A service imports only `shared` and `platform`, never another service.
 - `platform` contains no business logic and does not import `shared`.
-- Rules are enforced by `depguard` in CI; ownership is declared in `CODEOWNERS`.
+- `depguard` in CI (`.golangci.yml`) enforces that `platform` does not import `shared`. Isolation between services comes from Go's `internal/` visibility: a service keeps all its packages under `internal/` (§8.2), so no other service can import them; a service package outside `internal/` and `cmd/` is caught in review. Ownership is declared in `CODEOWNERS`.
 
 ### 8.2 Service layout
 

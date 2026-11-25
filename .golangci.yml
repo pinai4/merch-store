@@ -1,0 +1,56 @@
+# golangci-lint v2 configuration for every module in go.work.
+# `task lint` runs golangci-lint from each module directory; the linter finds
+# this file by walking up to the repository root. The version is pinned in
+# .tool-versions.
+version: "2"
+
+run:
+  # Resolve ${base-path} (used in the depguard file globs below) to the
+  # directory of this file, the repository root.
+  relative-path-mode: cfg
+
+linters:
+  default: none
+  enable:
+    - depguard
+    - errcheck
+    - gosec
+    - govet
+    - ineffassign
+    - revive
+    - staticcheck
+    - unused
+
+  settings:
+    # Dependency rules of docs/architecture/README.md §8.1. depguard checks
+    # that platform does not import shared. Isolation between services is not
+    # a depguard rule: depguard matches packages by prefix only and cannot tell
+    # a service's own packages from another service's. It comes from Go's
+    # internal/ visibility instead, since a service keeps its packages under
+    # services/<name>/internal/ (§8.2).
+    #
+    # The file glob is anchored to the repository root with ${base-path}, so a
+    # nested directory such as services/<name>/internal/adapters/platform/
+    # does not pick up the platform rule.
+    depguard:
+      rules:
+        platform:
+          list-mode: lax
+          files:
+            - "${base-path}/platform/**"
+          deny:
+            - pkg: github.com/pinai4/merch-store/shared
+              desc: platform does not import shared (docs/architecture/README.md §8.1)
+
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+  settings:
+    gofumpt:
+      extra:
+        group-params: true    # func f(a int, b int) -> func f(a, b int)
+        clothe-returns: true  # bare return -> return n, err
+    goimports:
+      local-prefixes:
+        - github.com/pinai4/merch-store
