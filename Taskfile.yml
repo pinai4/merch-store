@@ -82,7 +82,10 @@ tasks:
         cmd: go -C "{{.ITEM}}" test ./...
 
   fmt:
-    desc: Format Go code in every go.work module
+    desc: Format Go code in every go.work module with the formatters of .golangci.yml
+    preconditions:
+      - sh: test "$("{{.GOLANGCI_LINT}}" version --short 2>/dev/null)" = "{{.GOLANGCI_LINT_VERSION}}"
+        msg: "golangci-lint {{.GOLANGCI_LINT_VERSION}} (pinned in .tool-versions) is missing or outdated in .bin/. Run: task tools"
     cmds:
       - for: { var: MODULES }
-        cmd: go -C "{{.ITEM}}" fmt ./...
+        cmd: cd "{{.ITEM}}" && "{{.GOLANGCI_LINT}}" fmt ./...
