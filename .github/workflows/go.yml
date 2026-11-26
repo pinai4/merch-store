@@ -1,0 +1,114 @@
+# Lint and test the Go modules a change affects (ADR 0001: CI is path-filtered).
+#
+# changes  selects the modules with .github/scripts/changed-go-modules.sh.
+# module   runs `task lint` and `task test` for each selected module.
+# go-ci    always runs and fails if any job above failed; it is the check to
+#          make required, because the module jobs are skipped or renamed from
+#          one change to the next.
+#
+# Versions come from the repository: Go from the toolchain directive in go.work,
+# task and golangci-lint from .tool-versions. Actions are pinned to commit SHAs.
+name: go
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# One group per pull request: a new push cancels the run of the superseded
+# commit. A push to main gets a group per commit, so every commit on main keeps
+# its own result.
+concurrency:
+  group: go-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  changes:
+    name: changes
+    runs-on: ubuntu-24.04
+    outputs:
+      modules: ${{ steps.select.outputs.modules }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.work
+          cache: false
+
+      - name: Select modules
+        id: select
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          # A push without a usable previous commit (a new branch or a
+          # rewritten history) has nothing to compare with: select everything.
+          if [[ $BASE =~ ^0+$ ]] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            echo "No base commit to compare with; selecting every module."
+            modules=$(.github/scripts/changed-go-modules.sh --all)
+          else
+            echo "Changed files ($BASE...$HEAD):"
+            git diff --name-only "$BASE...$HEAD" | sed 's/^/  /'
+            modules=$(git diff --name-only "$BASE...$HEAD" | .github/scripts/changed-go-modules.sh)
+          fi
+          echo "Selected modules: $modules"
+          echo "modules=$modules" >> "$GITHUB_OUTPUT"
+
+  module:
+    name: module (${{ matrix.dir }})
+    needs: changes
+    if: needs.changes.outputs.modules != '[]'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        dir: ${{ fromJSON(needs.changes.outputs.modules) }}
+    env:
+      MODULE: ${{ matrix.dir }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: go.work
+          cache-dependency-path: |
+            go.work
+            **/go.mod
+            **/go.sum
+
+      - name: Install task
+        run: go install "github.com/go-task/task/v3/cmd/task@v$(awk '$1 == "task" { print $2 }' .tool-versions)"
+
+      - name: Install golangci-lint
+        run: task tools:install
+
+      - name: Lint
+        run: task lint MODULES="$MODULE"
+
+      - name: Test
+        run: task test MODULES="$MODULE"
+
+  go-ci:
+    name: go-ci
+    needs: [changes, module]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check results
+        env:
+          CHANGES: ${{ needs.changes.result }}
+          MODULE: ${{ needs.module.result }}
+        run: |
+          echo "changes: $CHANGES, module: $MODULE"
+          # module is skipped when no Go module is affected.
+          [[ $CHANGES == success ]] || exit 1
+          [[ $MODULE == success || $MODULE == skipped ]] || exit 1

@@ -24,7 +24,8 @@ vars:
     sh: awk '$1 == "golangci-lint" { print $2 }' "{{.ROOT_DIR}}/.tool-versions"
   TASK_MIN_VERSION:
     sh: awk '$1 == "task" { print $2 }' "{{.ROOT_DIR}}/.tool-versions"
-  # Directories of the modules listed in go.work, one per line.
+  # Directories of the modules listed in go.work, one per line. Override it to
+  # run lint, test or fmt in one module, as CI does: `task test MODULES=platform`.
   MODULES:
     sh: go list -m -f '{{"{{.Dir}}"}}'
 
