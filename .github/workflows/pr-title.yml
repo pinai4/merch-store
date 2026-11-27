@@ -1,0 +1,31 @@
+# Checks that the pull request title follows Conventional Commits. Squash merge
+# uses the title as the commit message on main. pr-title is a required check.
+#
+# The title is passed through the environment, never expanded into the script,
+# so a crafted title cannot inject shell commands.
+name: pr-title
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions: {}
+
+concurrency:
+  group: pr-title-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  pr-title:
+    name: pr-title
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: .github/scripts
+          persist-credentials: false
+
+      - name: Check title
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: .github/scripts/check-pr-title.sh "$TITLE"
