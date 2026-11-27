@@ -218,4 +218,4 @@ Eight milestones `Phase 1` … `Phase 8` as described in [Milestones](#milestone
 - Ruleset `main-branch-ruleset` (Settings → Rules → Rulesets), target: default branch, enforcement active, no bypass actors:
   - restrict deletions; block force pushes; require linear history;
   - require a pull request before merging, required approvals: 0 (single maintainer; raise to 1 when a second developer joins);
-  - required status checks: none yet. Added by the CI tasks: `go-ci` and the PR title check (#16), `contracts` (#21).
+  - require status checks to pass: `go-ci` (workflow `go`) and `pr-title` (workflow `pr-title`), both with source GitHub Actions; branches do not have to be up to date before merging. `contracts` is added by #21.

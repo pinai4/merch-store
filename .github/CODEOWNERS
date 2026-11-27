@@ -1,0 +1,16 @@
+# Code owners per area (docs/agents/issue-tracker.md, "Labels": the area:
+# labels follow these entries). Every area is owned by the repository owner
+# for now; split ownership here when a team takes over an area.
+#
+# The last matching pattern wins, so the default entry comes first.
+
+# Default: repository-wide tooling and conventions (area: repo).
+*                      @pinai4
+
+/platform/             @pinai4
+/shared/               @pinai4
+/services/catalog/     @pinai4
+/web/                  @pinai4
+/deploy/               @pinai4
+/.github/              @pinai4
+/docs/architecture/    @pinai4

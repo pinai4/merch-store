@@ -469,7 +469,7 @@ The storage stack (Tempo/Jaeger, Loki) is deployed in a dedicated phase.
 ## 12. Development process
 
 - Trunk-based development: short-lived branches, pull requests into `main`, Conventional Commits.
-- Required checks: `golangci-lint` (including `depguard`), tests, `buf lint` and `buf breaking`, generated-code drift check, image build.
+- Required checks: `golangci-lint` (including `depguard`), tests, `buf lint` and `buf breaking`, generated-code drift check, image build, and a Conventional Commits check of the PR title, which becomes the squash commit message.
 - Test levels:
   - unit — `domain` and `usecase`;
   - integration — adapters against real dependencies with testcontainers;
